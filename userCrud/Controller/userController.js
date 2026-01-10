@@ -1,4 +1,7 @@
 const user = require("../Models/Users");
+const bcrypt = require("bcrypt")
+
+
 
 // route-get users // method -get
 
@@ -19,8 +22,26 @@ exports.getUser = async (req , res )=>{
 
 exports.adduser = async(req , res) =>{
     try{
-        const user = new user (req.body);
-        await user.save();
+         const {password} = req.body;
+
+         if(!password){
+            return res.status(400).json({message:"password is required"});
+         }
+
+         const hashedpassword = await bcrypt.hash(password , 10);
+
+         req.body.password = hashedpassword;
+
+         const userdata = {
+            ...req.body,
+            password:hashedpassword,
+         }
+
+         const user = new user(userdata);
+         await user.save();
+
+        // const user = new user (req.body);
+        // await user.save();
 
         res.statuse(201).json({
             message:"user created",
@@ -60,10 +81,10 @@ exports.putuser = async (req ,res)=>{
 exports.patchuser = async (req , res)=>{
     try{
         const patchuser = await user.findByIdAndUpdate(
-            req.parmar.id,
+            req.params.id,
             {$set:req.body},
             {
-                neq:true,
+                new:true,
                 runValidators:true,
             }
         )
@@ -86,17 +107,17 @@ exports.patchuser = async (req , res)=>{
 //  // // delete method 
 
 
-exports.deletuser =async (req , res)=>{
+exports.deleteUser =async (req , res)=>{
     try{
-        const id = req.param.id
+        const id = req.params.id
         const user = await user.findByIdAndDelete(id);
         res.json({
-            message:"usre Delete successfully",
+            message:"user Delete successfully",
             data:user,
 
         });
 
-    }catch (err){
-            res.josn({error:error.message});
+    }catch (error){
+            res.json({error:error.message});
     }
 }

@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const userSchema = new mongoose.Schema({
     email:{
-        type :StaticRange,
+        type :String,
         require:true,
         unique:true
     },
@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
     },
     age:{
         type:Number
+    },
+
+    profilename:{
+        type:String,
+        require:true
     }
 });
 
